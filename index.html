@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f7f8fb;color:#171717}
+  .topbar{background:#1976ee;color:#fff;text-align:center;padding:22px 16px;font-size:31px;font-weight:700}
+  .wrap{max-width:760px;margin:0 auto;background:#fff;min-height:100vh;padding:30px 28px 45px}
+  .timer-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:35px}
+  .timer-label{font-size:24px;font-weight:600}
+  .timer{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:25px}
+  .timer span{background:#1976ee;border-radius:10px;padding:12px 17px;min-width:76px;text-align:center}
+  .timer i{font-style:normal;color:#1976ee}
+  .row{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:18px;padding:20px 0;border-bottom:1px solid #eee}
+  .label{font-size:22px;color:#666}
+  .value{font-size:25px;font-weight:700;word-break:break-all;user-select:text;-webkit-user-select:text}
+  button{font:inherit;cursor:pointer}
+  .copy{border:2px solid #1976ee;background:#fff;color:#1976ee;border-radius:10px;padding:11px 26px;font-weight:700}
+  .how{display:block;color:#1976ee;text-decoration:none;font-size:22px;font-weight:700;margin:28px 0}
+  .choose{font-size:22px;color:#666;margin:0 0 18px}
+  .apps{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .app{background:#fff;border:1px solid #ddd;border-radius:18px;box-shadow:0 2px 9px #00000012;padding:25px;font-size:25px;font-weight:700}
+  .phonepe{color:#5d249e}.paytm{color:#09a9cf}
+  .section-title{color:#1976ee;font-size:21px;font-weight:700;margin:34px 0 16px}
+  .utr{display:grid;grid-template-columns:140px 1fr;border:1px solid #ddd;border-radius:15px;overflow:hidden}
+  .utr strong{padding:18px;font-size:22px;background:#fafafa}
+  .utr input{border:0;padding:18px;font-size:20px;outline:none}
+  .upload{border:2px dashed #b9c8dc;border-radius:15px;padding:25px;text-align:center;background:#fbfdff}
+  .upload label{display:inline-block;background:#1976ee;color:white;padding:13px 22px;border-radius:10px;font-weight:700;cursor:pointer}
+  #file{display:none}
+  .preview{display:none;margin-top:18px}
+  .preview img{max-width:100%;max-height:300px;border-radius:12px}
+  .submit{width:100%;border:0;background:#1976ee;color:#fff;border-radius:40px;padding:20px;font-size:25px;font-weight:700;margin-top:28px}
+  .submit:disabled{opacity:.5;cursor:not-allowed}
+  .notice{margin-top:35px}
+  .notice h3{color:#d44747;font-size:23px}
+  .notice li{font-size:19px;line-height:1.55;margin:10px 0}
+  .modal-bg{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:18px}
+  .modal{width:min(650px,100%);background:#fff;border-radius:28px;overflow:hidden}
+  .modal-head{background:#5d249e;color:#fff;padding:24px;display:flex;justify-content:space-between;align-items:center;font-size:25px;font-weight:700}
+  .close{background:#ffffff33;color:white;border:0;border-radius:50%;width:46px;height:46px;font-size:32px}
+  .modal-body{padding:28px}
+  .warning{border:2px solid #f2aaaa;background:#fff5f5;color:#c93232;border-radius:18px;padding:20px;font-size:20px;line-height:1.55;font-weight:600}
+  .upi-box{margin-top:22px;border:2px solid #c5ddff;background:#f5f9ff;border-radius:16px;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .upi-box strong{font-size:22px;color:#1976ee;word-break:break-all}
+  .amount-box{margin-top:18px;border:2px solid #b9efcf;background:#f4fff8;border-radius:16px;padding:20px;display:flex;justify-content:space-between;font-size:22px}
+  .amount-box strong{color:#16853c;font-size:25px}
+  .edit-panel{background:#eef5ff;border-radius:15px;padding:18px;margin-bottom:25px}
+  .edit-panel summary{color:#1976ee;font-weight:700;cursor:pointer;font-size:18px}
+  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+  .edit-grid input{padding:12px;border:1px solid #ccd6e3;border-radius:9px;font-size:16px}
+  .save{grid-column:1/-1;background:#1976ee;color:white;border:0;border-radius:9px;padding:12px;font-weight:700}
+  .code-bg{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:18px;z-index:100000}
+  .code-modal{width:min(420px,100%);background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 15px 45px #0005}
+  .code-head{background:#1976ee;color:#fff;padding:18px 20px;font-size:21px;font-weight:700}
+  .code-body{padding:20px}
+  .code-body p{margin:0 0 14px;color:#666;font-size:15px}
+  .code-input{width:100%;padding:14px;border:1px solid #ccd6e3;border-radius:10px;font-size:20px;text-align:center;letter-spacing:6px;outline:none}
+  .code-actions{display:flex;gap:10px;margin-top:14px}
+  .code-actions button{flex:1;border:0;border-radius:10px;padding:12px;font-weight:700}
+  .code-cancel{background:#eee;color:#333}.code-ok{background:#1976ee;color:#fff}
+  .code-error{display:none;color:#d44747;font-size:13px;font-weight:700;margin-top:9px;text-align:center}
+  @media(max-width:600px){
+    body{font-size:14px}
+    .topbar{padding:14px 10px;font-size:22px}
+    .wrap{width:100%;max-width:420px;padding:16px 12px 28px}
+    .edit-panel{padding:11px;margin-bottom:16px}
+    .edit-panel summary{font-size:14px}
+    .edit-grid{grid-template-columns:1fr;gap:8px}
+    .edit-grid input{padding:9px;font-size:13px}
+    .save{padding:9px;font-size:14px}
+
+    .timer-row{gap:8px;margin-bottom:18px}
+    .timer-label{font-size:15px;line-height:1.2}
+    .timer{font-size:15px;gap:4px}
+    .timer span{min-width:43px;padding:7px 8px;border-radius:7px}
+
+    .row{grid-template-columns:72px 1fr auto;gap:7px;padding:12px 0}
+    .label{font-size:14px}
+    .value{font-size:16px}
+    .copy{padding:6px 9px;border-radius:7px;font-size:12px}
+
+    .how{font-size:15px;margin:16px 0}
+    .choose{font-size:15px;margin-bottom:10px}
+    .apps{gap:9px}
+    .app{font-size:16px;padding:15px 7px;border-radius:12px}
+
+    .section-title{font-size:15px;margin:22px 0 9px}
+    .utr{grid-template-columns:62px 1fr;border-radius:10px}
+    .utr strong{padding:12px;font-size:15px}
+    .utr input{padding:12px;font-size:14px}
+
+    .upload{padding:15px;border-radius:10px}
+    .upload p{font-size:13px!important;margin:5px 0 12px}
+    .upload label{padding:9px 14px;border-radius:7px;font-size:13px}
+
+    .preview img{max-height:180px}
+    .submit{padding:13px;font-size:17px;margin-top:16px}
+
+    .notice{margin-top:20px}
+    .notice h3{font-size:17px;margin-bottom:8px}
+    .notice li{font-size:13px;line-height:1.4;margin:6px 0}
+
+    .modal-bg{padding:10px}
+    .code-bg{padding:10px}
+    .code-modal{border-radius:14px}
+    .code-head{padding:14px;font-size:17px}
+    .code-body{padding:14px}
+    .code-input{padding:12px;font-size:18px}
+    .modal{border-radius:18px}
+    .modal-head{padding:15px;font-size:18px}
+    .close{width:34px;height:34px;font-size:24px}
+    .modal-body{padding:15px}
+    .warning{padding:13px;font-size:14px;border-radius:11px}
+    .upi-box{margin-top:14px;padding:11px;border-radius:10px}
+    .upi-box strong{font-size:15px}
+    .amount-box{margin-top:11px;padding:12px;font-size:15px;border-radius:10px}
+    .amount-box strong{font-size:17px}
+  }
+</style>
+<style>.copy.copied{background:#20c866!important;border-color:#20c866!important;color:#fff!important}</style>
+</head>
+<body>
+<header class="topbar" id="paymentTitle" title="Tap 6 times">Payment</header>
+
+<main class="wrap">
+  <details class="edit-panel" id="editPanel" style="display:none;">
+    <summary>⚙ Payment settings — quick edit</summary>
+    <div class="edit-grid">
+      <input id="cfgAmount" placeholder="Amount">
+      <input id="cfgUpi" placeholder="UPI / VPA">
+      <input id="cfgHow" placeholder="How-to link">
+      <input id="cfgMinutes" type="number" placeholder="Timer minutes">
+      <button class="save" onclick="saveSettings()">Save settings</button>
+    </div>
+  </details>
+
+  <div class="timer-row">
+    <div class="timer-label">Order will be closed in:</div>
+    <div class="timer"><span id="mm">08</span><i>:</i><span id="ss">39</span></div>
+  </div>
+
+  <div class="row">
+    <div class="label">Amount</div><div class="value" id="amount">₹ 2611</div>
+    <button class="copy" id="amountCopyBtn" onclick="copyText(CONFIG.amount, 'amount')">COPY</button>
+  </div>
+  <div class="row">
+    <div class="label">VPA/UPI</div><div class="value" id="upiMasked"></div>
+    <button class="copy" id="upiCopyBtn" onclick="copyText(CONFIG.upi, 'upi')">COPY</button>
+  </div>
+
+  <a class="how" id="howLink" href="#" target="_blank" rel="noopener">ⓘ How to transfer money 🔗</a>
+
+  <p class="choose">Choose payment app:</p>
+  <div class="apps">
+    <button class="app phonepe" onclick="openPayModal('PhonePe')">PhonePe</button>
+    <button class="app paytm" onclick="openPayModal('Paytm')">Paytm</button>
+    <button class="app" onclick="openPayModal('GPay')">GPay</button>
+    <button class="app" onclick="openPayModal('UPI')">UPI</button>
+  </div>
+
+  <div class="section-title">↓ Fill the UTR numbers after you done payment</div>
+  <div class="utr">
+    <strong>UTR</strong>
+    <input id="utr" placeholder="Input UTR number (optional)">
+  </div>
+
+  <div class="section-title">↑ Upload payment screenshot <span style="color:#d44747">*</span></div>
+  <div class="upload">
+    <p style="font-size:18px;color:#666">Screenshot is required before submitting.</p>
+    <label for="file">Choose image</label>
+    <input id="file" type="file" accept="image/*">
+    <div class="preview" id="preview"><img id="previewImg" alt="Payment screenshot preview"></div>
+  </div>
+
+  <button class="submit" id="submitBtn" disabled onclick="submitProof()">Submit UTR</button>
+  <div id="submitStatus" style="display:none;margin-top:12px;padding:12px;border-radius:10px;background:#f0fff5;color:#16853c;text-align:center;font-size:14px;font-weight:700;">
+    Your payment has been successfully submitted. It may take 5–10 minutes to update.
+  </div>
+
+  <div class="notice">
+    <h3>Notice:</h3>
+    <ol>
+      <li><b>One UPI</b> can only transfer money <b>once</b>.</li>
+      <li>Don't change the <b>payment amount</b>.</li>
+      <li>Only submit a screenshot after completing the payment.</li>
+    </ol>
+  </div>
+</main>
+
+<div class="code-bg" id="codeBg">
+  <div class="code-modal">
+    <div class="code-head">Payment settings</div>
+    <div class="code-body">
+      <p>Enter the code to open payment settings.</p>
+      <input class="code-input" id="settingsCode" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+      <div class="code-error" id="codeError">Incorrect code. Please try again.</div>
+      <div class="code-actions">
+        <button class="code-cancel" onclick="closeSettingsCode()">Cancel</button>
+        <button class="code-ok" onclick="unlockSettings()">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-head">
+      <span>Pay via <span id="appName">UPI</span></span>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="warning">⚠️ Copy UPI from here and pay from the selected application.<br><br>Do NOT change the payment amount!</div>
+      <div style="margin-top:22px;color:#777;font-weight:700;font-size:18px">UPI / VPA ID</div>
+      <div class="upi-box"><strong id="modalUpi"></strong><button class="copy" onclick="copyText(CONFIG.upi, 'upi')">Copy UPI</button></div>
+      <div class="amount-box"><span>Amount to Pay</span><strong id="modalAmount"></strong></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let paymentTitleTaps = 0;
+let paymentTitleTimer = null;
+
+document.getElementById("paymentTitle").addEventListener("click", () => {
+  paymentTitleTaps++;
+  clearTimeout(paymentTitleTimer);
+  paymentTitleTimer = setTimeout(() => { paymentTitleTaps = 0; }, 2000);
+
+  if (paymentTitleTaps >= 6) {
+    paymentTitleTaps = 0;
+    openSettingsCode();
+  }
+});
+
+function openSettingsCode(){
+  const bg = document.getElementById("codeBg");
+  const input = document.getElementById("settingsCode");
+  const error = document.getElementById("codeError");
+  error.style.display = "none";
+  input.value = "";
+  bg.style.display = "flex";
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeSettingsCode(){
+  document.getElementById("codeBg").style.display = "none";
+}
+
+function unlockSettings(){
+  const input = document.getElementById("settingsCode");
+  const error = document.getElementById("codeError");
+  if (input.value === "0107") {
+    error.style.display = "none";
+    closeSettingsCode();
+    const panel = document.getElementById("editPanel");
+    panel.style.display = "block";
+    panel.open = true;
+    render();
+  } else {
+    error.style.display = "block";
+    input.select();
+  }
+}
+
+document.getElementById("settingsCode").addEventListener("keydown", e => {
+  if (e.key === "Enter") unlockSettings();
+});
+
+/*
+  QUICK-EDIT CONFIGURATION
+  Change these values, or use the settings panel at the top of the page.
+*/
+const CONFIG = {
+  amount: "2611",
+  upi: "Khushboo149@fam",
+  howToLink: "#",
+  timerMinutes: 8
+};
+
+let remaining = CONFIG.timerMinutes * 60;
+
+function maskUpi(v){
+  if(!v || !v.includes("@")) return v;
+  const [name, handle] = v.split("@");
+  return name.length > 4 ? name.slice(0,3) + "****@" + handle : name[0] + "****@" + handle;
+}
+function render(){
+  document.getElementById("amount").textContent = "₹ " + CONFIG.amount;
+  document.getElementById("upiMasked").textContent = maskUpi(CONFIG.upi);
+  document.getElementById("howLink").href = CONFIG.howToLink || "#";
+  document.getElementById("modalUpi").textContent = CONFIG.upi;
+  document.getElementById("modalAmount").textContent = "₹ " + CONFIG.amount;
+  document.getElementById("cfgAmount").value = CONFIG.amount;
+  document.getElementById("cfgUpi").value = CONFIG.upi;
+  document.getElementById("cfgHow").value = CONFIG.howToLink;
+  document.getElementById("cfgMinutes").value = CONFIG.timerMinutes;
+}
+async function saveSettings(){
+  await saveSettingsPersistent(false);
+}
+function showToast(message){
+  let toast = document.getElementById("cleanToast");
+  if(!toast){
+    toast = document.createElement("div");
+    toast.id = "cleanToast";
+    toast.style.cssText =
+      "position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);" +
+      "background:#20c866;color:#fff;padding:12px 22px;border-radius:28px;" +
+      "font-size:16px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.18);" +
+      "opacity:0;pointer-events:none;z-index:99999;transition:opacity .2s,transform .2s;" +
+      "white-space:nowrap;";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = "1";
+  toast.style.transform = "translateX(-50%) translateY(0)";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(-50%) translateY(16px)";
+  }, 1800);
+}
+
+async function copyText(text, type="upi"){
+  const label = type === "amount" ? "Amount" : "UPI";
+  const button = type === "amount"
+    ? document.getElementById("amountCopyBtn")
+    : document.getElementById("upiCopyBtn");
+
+  let copied = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(String(text));
+      copied = true;
+    } else {
+      const area = document.createElement("textarea");
+      area.value = String(text);
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.left = "-9999px";
+      area.style.top = "0";
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      area.setSelectionRange(0, area.value.length);
+      copied = document.execCommand("copy");
+      area.remove();
+    }
+  } catch(e) {
+    copied = false;
+  }
+
+  // Never display "Copy failed". If the browser blocks copying,
+  // select the visible value so the user can copy it manually.
+  if (!copied) {
+    const row = button ? button.closest(".row") : null;
+    const value = row ? row.querySelector(".value") : null;
+    if (value) {
+      const range = document.createRange();
+      range.selectNodeContents(value);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  if(button){
+    const old = button.textContent;
+    button.textContent = "COPIED!";
+    button.classList.add("copied");
+    setTimeout(()=>{
+      button.textContent = old;
+      button.classList.remove("copied");
+    }, 1800);
+  }
+
+  showToast("✓ " + label + " Copied!");
+}
+function openPayModal(app){
+  document.getElementById("appName").textContent = app;
+  document.getElementById("modalBg").style.display = "flex";
+}
+function closeModal(){ document.getElementById("modalBg").style.display = "none"; }
+
+document.getElementById("file").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  const preview = document.getElementById("preview");
+  const img = document.getElementById("previewImg");
+  const btn = document.getElementById("submitBtn");
+  if(file && file.type.startsWith("image/")){
+    img.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    btn.disabled = false;
+  } else {
+    preview.style.display = "none";
+    btn.disabled = true;
+  }
+});
+
+async function submitProof(){
+  const file = document.getElementById("file").files[0];
+  const utr = document.getElementById("utr").value.trim();
+  const btn = document.getElementById("submitBtn");
+
+  if(!file){
+    alert("Please upload a payment screenshot first.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Uploading...";
+
+  try {
+    const form = new FormData();
+    form.append("screenshot", file, file.name);
+    form.append("utr", utr);
+    form.append("amount", CONFIG.amount);
+    form.append("upi", CONFIG.upi);
+
+    const response = await fetch("/.netlify/functions/upload-proof", {
+      method: "POST",
+      body: form
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if(!response.ok){
+      throw new Error(data.error || "Upload failed");
+    }
+
+    document.getElementById("submitStatus").style.display = "block";
+    showToast("✓ Payment Submitted!");
+    btn.textContent = "Submitted";
+  } catch(err) {
+    console.error(err);
+    alert("Upload failed. Please try again.");
+    btn.disabled = false;
+    btn.textContent = "Submit UTR";
+  }
+}
+
+setInterval(()=>{
+  if(remaining > 0) remaining--;
+  const m = Math.floor(remaining/60).toString().padStart(2,"0");
+  const s = (remaining%60).toString().padStart(2,"0");
+  document.getElementById("mm").textContent = m;
+  document.getElementById("ss").textContent = s;
+},1000);
+
+render();
+</script>
+
+<script>
+const SETTINGS_API = "/.netlify/functions/settings";
+async function loadSavedSettings(){
+  try{
+    const r=await fetch(SETTINGS_API+"?t="+Date.now(),{cache:"no-store",headers:{"Cache-Control":"no-cache"}});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const saved=await r.json();
+    if(saved.amount!=null) CONFIG.amount=String(saved.amount);
+    if(saved.upi!=null) CONFIG.upi=String(saved.upi);
+    if(saved.howToLink!=null) CONFIG.howToLink=String(saved.howToLink);
+    if(saved.timerMinutes!=null) CONFIG.timerMinutes=Number(saved.timerMinutes)||8;
+    remaining=CONFIG.timerMinutes*60; render();
+  }catch(e){console.warn("Settings load failed:",e);}
+}
+let autoSaveTimer=null,autoSaveBusy=false;
+function queueAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>saveSettingsPersistent(true),600);}
+["cfgAmount","cfgUpi","cfgHow","cfgMinutes"].forEach(id=>{
+  const el=document.getElementById(id); el.addEventListener("input",queueAutoSave); el.addEventListener("change",queueAutoSave);
+});
+async function saveSettingsPersistent(silent=false){
+  const amount=document.getElementById("cfgAmount").value.trim();
+  const upi=document.getElementById("cfgUpi").value.trim();
+  const howToLink=document.getElementById("cfgHow").value.trim()||"#";
+  const timerMinutes=Math.max(1,Math.min(1440,Number(document.getElementById("cfgMinutes").value)||8));
+  if(!amount||!upi){if(!silent) alert("Please enter both amount and UPI.");return false;}
+  if(autoSaveBusy)return false;
+  autoSaveBusy=true;
+  const btn=document.querySelector(".save"),oldText=btn.textContent;btn.disabled=true;btn.textContent="Saving...";
+  try{
+    const r=await fetch(SETTINGS_API,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Cache-Control":"no-cache"},body:JSON.stringify({amount,upi,howToLink,timerMinutes})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok||!data.ok)throw new Error(data.error||("Save failed: HTTP "+r.status));
+    CONFIG.amount=amount;CONFIG.upi=upi;CONFIG.howToLink=howToLink;CONFIG.timerMinutes=timerMinutes;remaining=timerMinutes*60;render();
+    if(!silent)showToast("✓ Settings saved to backend");
+    return true;
+  }catch(e){console.error("Settings save failed:",e);if(!silent)alert("Settings could not be saved.\n\n" + (e.message || "Unknown backend error") + "\n\nIf you deployed by drag-and-drop, deploy this project through Netlify CLI or a Git-connected Netlify site so the /settings Function is actually deployed.");return false;}
+  finally{autoSaveBusy=false;btn.disabled=false;btn.textContent=oldText;}
+}
+loadSavedSettings();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "payment-page",
+  "private": true,
+  "dependencies": {
+    "@netlify/blobs": "^10.0.0",
+    "busboy": "^1.6.0"
+  }
+}
